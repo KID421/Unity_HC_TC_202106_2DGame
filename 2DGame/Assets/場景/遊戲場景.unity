@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.041198686, g: 0.0385438, b: 0.093932785, a: 1}
+  m_IndirectSpecularColor: {r: 0.23632812, g: 0.23217776, b: 0.2912602, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -1939,9 +1939,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 30
-  jump: 100
+  jump: 2500
   hp: 100
   isGround: 0
+  gravity: 0.05
 --- !u!1 &1224976071
 GameObject:
   m_ObjectHideFlags: 0
@@ -22094,11 +22095,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3010289085738817909, guid: b27b0ad60dcf6d44fb6a417c41d03880, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.54
+      value: 8.14
       objectReference: {fileID: 0}
     - target: {fileID: 3010289085738817909, guid: b27b0ad60dcf6d44fb6a417c41d03880, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -3.63
+      value: -3.71
       objectReference: {fileID: 0}
     - target: {fileID: 3010289085738817909, guid: b27b0ad60dcf6d44fb6a417c41d03880, type: 3}
       propertyPath: m_LocalPosition.z

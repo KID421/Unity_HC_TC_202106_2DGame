@@ -23,7 +23,6 @@ public class Player : MonoBehaviour
     private float hValue;
     #endregion
 
-
     #region 事件
     private void Start()
     {
@@ -36,6 +35,8 @@ public class Player : MonoBehaviour
     private void Update()
     {
         GetPlayerInputHorizontal();
+        TurnDirection();
+        Jump();
     }
 
     // 固定更新事件
@@ -57,6 +58,9 @@ public class Player : MonoBehaviour
         hValue = Input.GetAxis("Horizontal");
     }
 
+    [Header("重力"), Range(0.01f, 1)]
+    public float gravity = 1;
+
     /// <summary>
     /// 移動
     /// </summary>
@@ -67,9 +71,26 @@ public class Player : MonoBehaviour
         // 簡寫：transform 此物件的 Transform 變形元件
         // posMove = 角色當前座標 + 玩家輸入的水平值
         // Time.fixedDeltaTime 指 1/50 秒
-        Vector2 posMove = transform.position + new Vector3(horizontal, 0, 0) * speed * Time.fixedDeltaTime;
+        Vector2 posMove = transform.position + new Vector3(horizontal, -gravity, 0) * speed * Time.fixedDeltaTime;
         // 剛體.移動座標(要前往的座標)
         rig.MovePosition(posMove);
+    }
+
+    /// <summary>
+    /// 旋轉方向：處理角色面向問題，按右角度 0，按左角度 180
+    /// </summary>
+    private void TurnDirection()
+    {
+        // 如果 玩家按 D 就將角度設定為 0, 0, 0
+        if (Input.GetKeyDown(KeyCode.D))
+        {
+            transform.eulerAngles = Vector3.zero;
+        }
+        // 如果 玩家按 A 就將角度設定為 0, 180, 0
+        if (Input.GetKeyDown(KeyCode.A))
+        {
+            transform.eulerAngles = new Vector3(0, 180, 0);
+        }
     }
 
     /// <summary>
@@ -77,7 +98,11 @@ public class Player : MonoBehaviour
     /// </summary>
     private void Jump()
     {
-
+        // 如果 玩家 按下 空白鍵 角色就往上跳躍
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            rig.AddForce(new Vector2(0, jump));
+        }
     }
 
     /// <summary>
