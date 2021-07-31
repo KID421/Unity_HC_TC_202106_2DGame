@@ -11,9 +11,16 @@ public class APINonStatic : MonoBehaviour
     public Transform traA;
     public Camera cam;
     public Transform traB;
+    public Light lightA;
+
+    public Camera camA;
+    public SpriteRenderer srA;
+    public Transform traC;
+    public Rigidbody2D rig;
 
     private void Start()
     {
+        #region 認識非靜態屬性
         // 1. 取得非靜態屬性
 
         // print("取得座標：" + Transform.position); // 錯誤：需要有物件參考
@@ -30,5 +37,24 @@ public class APINonStatic : MonoBehaviour
         // 3. 呼叫非靜態方法
         // ※ 語法：欄位.非靜態方法(對應引數)；
         traB.Translate(1, 0, 0);
+        lightA.Reset();
+        #endregion
+
+        #region 練習非靜態屬性
+        // 1. 取得非靜態屬性
+        print("攝影機深度：" + camA.depth);
+        print("圖片 1 的顏色：" + srA.color);
+
+        // 2. 設定非靜態屬性
+        camA.backgroundColor = Random.ColorHSV();
+        srA.flipY = true;
+        #endregion
+    }
+
+    private void Update()
+    {
+        // 3. 呼叫非靜態方法
+        traC.Rotate(0, 0, 1);
+        rig.AddForce(new Vector2(0, 10));
     }
 }
