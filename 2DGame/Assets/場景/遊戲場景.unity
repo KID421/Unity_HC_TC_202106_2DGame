@@ -2193,6 +2193,7 @@ MonoBehaviour:
   gravity: 0.1
   groundOffset: {x: 0, y: -2.4, z: 0}
   groundRadius: 0.1
+  cd: 0.8
 --- !u!1 &1224976071
 GameObject:
   m_ObjectHideFlags: 0
@@ -2398,6 +2399,7 @@ GameObject:
   - component: {fileID: 1680746158}
   - component: {fileID: 1680746160}
   - component: {fileID: 1680746159}
+  - component: {fileID: 1680746161}
   m_Layer: 0
   m_Name: "\u5DEB\u5E2B"
   m_TagString: Untagged
@@ -2526,6 +2528,22 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 4
+--- !u!114 &1680746161
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1680746155}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 77b2ff25b9ab8314b975915b8ea74182, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hp: 100
+  attack: 20
+  speed: 1.5
+  state: 0
 --- !u!1 &1770216897
 GameObject:
   m_ObjectHideFlags: 0
