@@ -24,10 +24,14 @@ public class BaseEnemy : MonoBehaviour
     /// 隨機走路範圍
     /// </summary>
     public Vector2 v2RandomWalk = new Vector2(3, 6);
+    [Header("檢查前方是否有障礙物或地板球體")]
+    public Vector3 checkForwardOffset;
+    [Range(0, 1)]
+    public float checkForwardRadius = 0.3f;
 
     // 將私人欄位顯示在屬性面板上
     [SerializeField]
-    private StateEnemy state;
+    protected StateEnemy state;
     #endregion
 
     #region 欄位：私人
@@ -50,6 +54,14 @@ public class BaseEnemy : MonoBehaviour
     /// 走路用計時器
     /// </summary>
     private float timerWalk;
+
+    // 認識陣列
+    // 語法：類型後方加上中括號，例如：int[]、float[]、string[]、Vector2[]
+    private Collider2D[] hits;
+    /// <summary>
+    /// 存放前方是否有不包含地板、跳台的物件
+    /// </summary>
+    private Collider2D[] hitResult;
     #endregion
 
     #region 事件
@@ -66,23 +78,22 @@ public class BaseEnemy : MonoBehaviour
         #endregion
     }
 
-    private void Update()
-    {
-        CheckForward();
-        CheckState();
-    }
-
     private void FixedUpdate()
     {
         WalkInFixedUpdate();
     }
 
-    [Header("檢查前方是否有障礙物或地板球體")]
-    public Vector3 checkForwardOffset;
-    [Range(0, 1)]
-    public float checkForwardRadius = 0.3f;
+    protected virtual void Update()
+    {
+        CheckForward();
+        CheckState();
+    }
 
-    private void OnDrawGizmos()
+    // 父類別的成員如果希望子類別複寫必須遵循：
+    // 1. 修飾詞必須是 public 或 protected - 保護 允許子類別存取
+    // 2. 添加關鍵字 virtual 虛擬 - 允許子類別複寫
+    // 3. 子類別使用 override 複寫
+    protected virtual void OnDrawGizmos()
     {
         Gizmos.color = new Color(1, 0.3f, 0.3f, 0.3f);
         // transform.right 當前物件的右方 (2D 模式為前方，紅色箭頭)
@@ -94,14 +105,6 @@ public class BaseEnemy : MonoBehaviour
             checkForwardRadius);
     }
     #endregion
-
-    // 認識陣列
-    // 語法：類型後方加上中括號，例如：int[]、float[]、string[]、Vector2[]
-    public Collider2D[] hits;
-    /// <summary>
-    /// 存放前方是否有不包含地板、跳台的物件
-    /// </summary>
-    public Collider2D[] hitResult;
 
     #region 方法
     /// <summary>
@@ -157,10 +160,43 @@ public class BaseEnemy : MonoBehaviour
             case StateEnemy.track:
                 break;
             case StateEnemy.attack:
+                Attack();
                 break;
             case StateEnemy.dead:
                 break;
         }
+    }
+
+    [Range(0.5f, 5)]
+    /// <summary>
+    /// 攻擊冷卻時間
+    /// </summary>
+    public float cdAttack = 3;
+    private float timerAttack;
+
+    /// <summary>
+    /// 攻擊狀態：執行攻擊並添加冷卻
+    /// </summary>
+    private void Attack()
+    {
+        if (timerAttack < cdAttack)
+        {
+            timerAttack += Time.deltaTime;
+        }
+        else
+        {
+            AttackMethod();
+        }
+    }
+
+    /// <summary>
+    /// 子類別可以決定該如何攻擊的方法
+    /// </summary>
+    protected virtual void AttackMethod()
+    {
+        timerAttack = 0;
+        ani.SetTrigger("攻擊觸發");
+        print("攻擊");
     }
 
     /// <summary>
