@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;   // 引用 系統.集合 - 協同程序
 
 /// <summary>
 /// 近距離攻擊敵人類型：近距離攻擊
@@ -48,6 +49,27 @@ public class NearEnemy : BaseEnemy
 
         // 如果 碰到物件為玩家 就將狀態改為 攻擊
         if (hit) state = StateEnemy.attack;
+    }
+
+    protected override void AttackMethod()
+    {
+        base.AttackMethod();
+
+        StartCoroutine(DelaySendDamageToPlayer());          // 啟動協同程序
+    }
+
+    // 協同程序用法：
+    // 1. 引用 System.Collections API
+    // 2. 傳回方法，傳回類型為 IEnumerator
+    // 3. 使用 StartCoroutine() 啟動協同程序
+    /// <summary>
+    /// 延遲將傷害傳給玩家
+    /// </summary>
+    private IEnumerator DelaySendDamageToPlayer()
+    {
+        yield return new WaitForSeconds(attackDelayFirst);
+        print("第一次攻擊");
+        player.Hurt(attack);
     }
     #endregion
 }

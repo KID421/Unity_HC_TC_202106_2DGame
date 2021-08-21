@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;                   // 引用 介面 API
 
 public class Player : MonoBehaviour
 {
@@ -17,6 +18,8 @@ public class Player : MonoBehaviour
     public Vector3 groundOffset;
     [Range(0, 2)]
     public float groundRadius = 0.5f;
+    [Header("攻擊冷卻"), Range(0, 5)]
+    public float cd = 2;
 
     // 私人欄位不顯示
     // 開啟屬性面板除錯模式 Debug 可以看到私人欄位
@@ -27,15 +30,41 @@ public class Player : MonoBehaviour
     /// 玩家水平輸入值
     /// </summary>
     private float hValue;
+    /// <summary>
+    /// 攻擊計時器
+    /// </summary>
+    private float timer;
+    /// <summary>
+    /// 是否攻擊
+    /// </summary>
+    private bool isAttack;
     #endregion
 
     #region 事件
+    /// <summary>
+    /// 文字血量
+    /// </summary>
+    private Text textHp;
+    /// <summary>
+    /// 血條
+    /// </summary>
+    private Image imgHp;
+    /// <summary>
+    /// 血量最大值：保存血量最大數值
+    /// </summary>
+    private float hpMax;
+
     private void Start()
     {
         // GetComponent<類型>() 泛型方法，可以指定任何類型
         // 作用：取得此物件的 2D 剛體元件
         rig = GetComponent<Rigidbody2D>();
         ani = GetComponent<Animator>();
+
+        hpMax = hp;
+
+        textHp = GameObject.Find("文字血量").GetComponent<Text>();
+        imgHp = GameObject.Find("血條").GetComponent<Image>();
     }
 
     // 一秒約執行 60 次
@@ -139,18 +168,6 @@ public class Player : MonoBehaviour
         }
     }
 
-    [Header("攻擊冷卻"), Range(0, 5)]
-    public float cd = 2;
-    
-    /// <summary>
-    /// 攻擊計時器
-    /// </summary>
-    private float timer;
-    /// <summary>
-    /// 是否攻擊
-    /// </summary>
-    private bool isAttack;
-
     /// <summary>
     /// 攻擊
     /// </summary>
@@ -184,7 +201,12 @@ public class Player : MonoBehaviour
     /// <param name="damage">造成的傷害</param>
     public void Hurt(float damage)
     {
+        hp -= damage;                       // 血量扣除傷害值
 
+        if (hp <= 0) Dead();                // 如果 血量 <= 0 就 死亡
+
+        textHp.text = "HP " + hp;           // 文字血量.文字內容 = "HP " + 血量
+        imgHp.fillAmount = hp / hpMax;      // 血條.填滿數值 = hp / hpMax
     }
 
     /// <summary>
@@ -192,7 +214,9 @@ public class Player : MonoBehaviour
     /// </summary>
     private void Dead()
     {
-
+        hp = 0;                             // 血量歸零
+        ani.SetBool("死亡開關", true);       // 死亡動畫
+        enabled = false;                    // 關閉此腳本
     }
 
     /// <summary>
