@@ -87,6 +87,11 @@ public class BaseEnemy : MonoBehaviour
     /// </summary>
     protected Collider2D hit;
 
+    [Header("掉落道具資料：道具、機率")]
+    public GameObject goProp;
+    [Range(0, 1)]
+    public float propProbability = 0.3f;
+
     #region 事件
     private void Start()
     {
@@ -131,7 +136,7 @@ public class BaseEnemy : MonoBehaviour
     }
     #endregion
 
-    #region 方法
+    #region 方法：私人
     /// <summary>
     /// 檢查前方：是否有地板或障礙物
     /// </summary>
@@ -200,6 +205,7 @@ public class BaseEnemy : MonoBehaviour
         if (timerAttack < cdAttack)
         {
             timerAttack += Time.deltaTime;
+            ani.SetBool("走路開關", false);
         }
         else
         {
@@ -214,7 +220,6 @@ public class BaseEnemy : MonoBehaviour
     {
         timerAttack = 0;
         ani.SetTrigger("攻擊觸發");
-        print("攻擊");
     }
 
     /// <summary>
@@ -283,6 +288,48 @@ public class BaseEnemy : MonoBehaviour
         else transform.eulerAngles = Vector2.zero;
     }
     #endregion
+
+    #region 方法：公開
+    /// <summary>
+    /// 受傷
+    /// </summary>
+    /// <param name="damage">接收到的傷害值</param>
+    public void Hurt(float damage)
+    {
+        hp -= damage;
+        ani.SetTrigger("受傷觸發");
+
+        if (hp <= 0) Dead();
+    }
+    #endregion
+
+    /// <summary>
+    /// 死亡：死亡動畫、狀態、關閉腳本、碰撞器、加速度以及剛體凍結
+    /// </summary>
+    private void Dead()
+    {
+        hp = 0;
+        ani.SetBool("死亡開關", true);
+        state = StateEnemy.dead;
+        GetComponent<CapsuleCollider2D>().enabled = false;      // 關閉碰撞器
+        rig.velocity = Vector3.zero;                            // 加速度歸零
+        rig.constraints = RigidbodyConstraints2D.FreezeAll;     // 剛體凍結全部
+        DropProp();
+        enabled = false;
+    }
+
+    /// <summary>
+    /// 死亡後呼叫掉落道具方法，機率性掉落
+    /// </summary>
+    private void DropProp()
+    {
+        if (Random.value <= propProbability)
+        {
+            // 生成(物件，座標，角度)
+            // Quaternion.identity 零角度 = Vector3.zero
+            Instantiate(goProp, transform.position + Vector3.up * 1.5f, Quaternion.identity);
+        }
+    }
 }
 
 // 定義列舉

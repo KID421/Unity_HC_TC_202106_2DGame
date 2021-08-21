@@ -1,7 +1,9 @@
 using UnityEngine;
+using System.Collections;
 
 /// <summary>
 /// 攝影機追蹤目標
+/// 玩家打擊到物件的打擊效果
 /// </summary>
 public class CameraControl : MonoBehaviour
 {
@@ -55,4 +57,33 @@ public class CameraControl : MonoBehaviour
         transform.position = posResult;
     }
     #endregion
+
+    [Header("晃動的值"), Range(0, 5)]
+    public float shakeValue = 0.2f;
+    [Header("晃動的次數"), Range(0, 20)]
+    public int shakeCount = 10;
+    [Header("晃動的間隔"), Range(0, 5)]
+    public float shakeInterval = 0.3f;
+
+    /// <summary>
+    /// 晃動效果
+    /// </summary>
+    public IEnumerator ShakeEffect()
+    {
+        Vector3 posOriginal = transform.position;               // 取得攝影機晃動前的座標
+
+        for (int i = 0; i < shakeCount; i++)                    // 迴圈執行座標改動
+        {
+            Vector3 posShake = posOriginal;
+
+            if (i % 2 == 0) posShake.y -= shakeValue;           // i 為 偶數 就 往左
+            else posShake.y += shakeValue;                      // i 為 奇數 就 往右
+
+            transform.position = posShake;
+
+            yield return new WaitForSeconds(shakeInterval);
+        }
+
+        transform.position = posOriginal;                       // 攝影機恢復原始座標
+    }
 }

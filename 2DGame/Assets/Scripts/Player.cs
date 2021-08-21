@@ -54,6 +54,15 @@ public class Player : MonoBehaviour
     /// </summary>
     private float hpMax;
 
+    [Header("攻擊區域的位移與大小")]
+    public Vector2 checkAttackOffset;
+    public Vector3 checkAttackSize;
+
+    /// <summary>
+    /// 攝影機控制類別
+    /// </summary>
+    private CameraControl cameraControl;
+
     private void Start()
     {
         // GetComponent<類型>() 泛型方法，可以指定任何類型
@@ -65,6 +74,8 @@ public class Player : MonoBehaviour
 
         textHp = GameObject.Find("文字血量").GetComponent<Text>();
         imgHp = GameObject.Find("血條").GetComponent<Image>();
+
+        cameraControl = GameObject.Find("攝影機").GetComponent<CameraControl>();
     }
 
     // 一秒約執行 60 次
@@ -90,6 +101,13 @@ public class Player : MonoBehaviour
         Gizmos.color = new Color(1, 0, 0, 0.3f);    // 半透明紅色
         // 繪製球體(中心點，半徑)
         Gizmos.DrawSphere(transform.position + groundOffset, groundRadius);
+
+        Gizmos.color = new Color(0.5f, 0.3f, 0.1f, 0.3f);
+        Gizmos.DrawCube(
+            transform.position +
+            transform.right * checkAttackOffset.x +
+            transform.up * checkAttackOffset.y,
+            checkAttackSize);
     }
     #endregion
 
@@ -168,6 +186,9 @@ public class Player : MonoBehaviour
         }
     }
 
+    [Header("攻擊力"), Range(0, 1000)]
+    public float attack = 20;
+
     /// <summary>
     /// 攻擊
     /// </summary>
@@ -178,6 +199,19 @@ public class Player : MonoBehaviour
         {
             isAttack = true;
             ani.SetTrigger("攻擊觸發");
+
+            // 判定攻擊區域是否有打到 8 號敵人圖層物件
+            Collider2D hit = Physics2D.OverlapBox(transform.position +
+            transform.right * checkAttackOffset.x +
+            transform.up * checkAttackOffset.y,
+            checkAttackSize, 0, 1 << 8);
+
+            // 擊中物件存在時 對其造成傷害
+            if (hit)
+            {
+                hit.GetComponent<BaseEnemy>().Hurt(attack);     // 敵人 受傷
+                StartCoroutine(cameraControl.ShakeEffect());    // 攝影機 晃動
+            }
         }
 
         // 如果按下左鍵攻擊中就開始累加時間
@@ -225,7 +259,34 @@ public class Player : MonoBehaviour
     /// <param name="propName">吃到的道具名稱</param>
     private void EatProp(string propName)
     {
-
+        switch (propName)
+        {
+            case "蘋果":
+                Destroy(goPropHit);             // 刪除(物件，延遲時間)
+                hp += 10;
+                hp = Mathf.Clamp(hp, 0, hpMax); // 夾住 HP 在範圍內
+                textHp.text = "HP " + hp;       // 更新介面
+                imgHp.fillAmount = hp / hpMax;
+                break;
+            default:
+                break;
+        }
     }
     #endregion
+
+    /// <summary>
+    /// 儲存碰撞物件資訊
+    /// </summary>
+    private GameObject goPropHit;
+
+    // 碰撞事件：
+    // 1. 兩個碰撞物件都要有 Collider 
+    // 2. 並且其中一個要有 Rigidbody
+    // 3. 兩個都沒有勾選 Is Trigger
+    // Enter 事件：碰撞開始時執行一次
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        goPropHit = collision.gameObject;
+        EatProp(collision.gameObject.tag);
+    }
 }
