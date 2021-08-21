@@ -33,8 +33,13 @@ public class BaseEnemy : MonoBehaviour
     /// 攻擊冷卻時間
     /// </summary>
     public float cdAttack = 3;
-    [Header("第一次攻擊延遲"), Range(0.5f, 5)]
-    public float attackDelayFirst = 0.5f;
+    // 陣列：保存相同類型的資料表格，擁有編號與值兩份資料
+    // 陣列語法：類型[]
+    // 例如：int[]、string[]、GameObject[]、Vector3[]
+    [Header("攻擊延遲，可自行設定數量"), Range(0, 5)]
+    public float[] attacksDelay;
+    [Header("攻擊完成後隔多久恢復原本狀態"), Range(0, 5)]
+    public float afterAttackRestoreOriginal = 1;
 
     // 將私人欄位顯示在屬性面板上
     [SerializeField]
@@ -77,6 +82,10 @@ public class BaseEnemy : MonoBehaviour
     /// 玩家類別
     /// </summary>
     protected Player player;
+    /// <summary>
+    /// 攻擊區域的碰撞：保存玩家是否進入以及玩家碰撞資訊
+    /// </summary>
+    protected Collider2D hit;
 
     #region 事件
     private void Start()

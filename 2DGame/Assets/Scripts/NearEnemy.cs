@@ -42,7 +42,7 @@ public class NearEnemy : BaseEnemy
     /// </summary>
     private void CheckPlayerInAttackArea()
     {
-        Collider2D hit = Physics2D.OverlapBox(transform.position +
+        hit = Physics2D.OverlapBox(transform.position +
             transform.right * checkAttackOffset.x +
             transform.up * checkAttackOffset.y,
             checkAttackSize, 0, 1 << 7);
@@ -64,12 +64,27 @@ public class NearEnemy : BaseEnemy
     // 3. 使用 StartCoroutine() 啟動協同程序
     /// <summary>
     /// 延遲將傷害傳給玩家
+    /// 攻擊後判斷與決定狀態切換 - 攻擊或走路
     /// </summary>
     private IEnumerator DelaySendDamageToPlayer()
     {
-        yield return new WaitForSeconds(attackDelayFirst);
-        print("第一次攻擊");
-        player.Hurt(attack);
+        // 搬移程式快捷鍵：Alt + 上或下
+        // 格式化排版快捷鍵：Ctrl + K D
+
+        // 取得陣列數量語法：陣列.Length
+        for (int i = 0; i < attacksDelay.Length; i++)
+        {
+            // 取得陣列資料與法：陣列欄位名稱[編號]
+            yield return new WaitForSeconds(attacksDelay[i]);           // 延遲時間
+
+            if (hit) player.Hurt(attack);                               // 如果碰撞資訊存在 就對玩家造成傷害
+        }
+
+        // 等待攻擊後恢復原本狀態時間 - 攻擊動畫最後的時間
+        yield return new WaitForSeconds(afterAttackRestoreOriginal);
+        // 如果 玩家還在攻擊區域內 就攻擊 否則 就走路
+        if (hit) state = StateEnemy.attack;
+        else state = StateEnemy.walk;
     }
     #endregion
 }

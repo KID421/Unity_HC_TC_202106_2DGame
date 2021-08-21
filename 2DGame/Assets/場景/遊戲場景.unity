@@ -864,7 +864,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: HP 100
+  m_Text: HP 200
 --- !u!222 &545789284
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -2946,10 +2946,13 @@ MonoBehaviour:
   checkForwardOffset: {x: 1, y: -1.1, z: 0}
   checkForwardRadius: 0.2
   cdAttack: 1.5
-  attackDelayFirst: 0.5
+  attacksDelay:
+  - 0.2
+  - 0.2
+  afterAttackRestoreOriginal: 0.7
   state: 0
-  checkAttackOffset: {x: 1.8, y: 0}
-  checkAttackSize: {x: 1.8, y: 2, z: 0.1}
+  checkAttackOffset: {x: 3, y: 0}
+  checkAttackSize: {x: 4, y: 2, z: 0.1}
 --- !u!82 &1680746162
 AudioSource:
   m_ObjectHideFlags: 0
