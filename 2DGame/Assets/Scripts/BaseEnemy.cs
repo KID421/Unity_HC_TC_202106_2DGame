@@ -17,9 +17,15 @@ public class BaseEnemy : MonoBehaviour
     [Range(1, 500)]
     public float speed = 1.5f;
     /// <summary>
+    /// 攻擊冷卻時間
+    /// </summary>
+    public float cdAttack = 3;
+    [Tooltip("隨機等待時間範圍")]
+    /// <summary>
     /// 隨機等待範圍
     /// </summary>
     public Vector2 v2RandomIdle = new Vector2(1, 5);
+    [Tooltip("隨機走路時間範圍")]
     /// <summary>
     /// 隨機走路範圍
     /// </summary>
@@ -29,26 +35,21 @@ public class BaseEnemy : MonoBehaviour
     [Range(0, 1)]
     public float checkForwardRadius = 0.3f;
     [Range(0.5f, 5)]
-    /// <summary>
-    /// 攻擊冷卻時間
-    /// </summary>
-    public float cdAttack = 3;
     // 陣列：保存相同類型的資料表格，擁有編號與值兩份資料
     // 陣列語法：類型[]
     // 例如：int[]、string[]、GameObject[]、Vector3[]
-    [Header("攻擊延遲，可自行設定數量"), Range(0, 5)]
+    [Header("攻擊延遲，可自行設定數量")]
     public float[] attacksDelay;
     [Header("攻擊完成後隔多久恢復原本狀態"), Range(0, 5)]
     public float afterAttackRestoreOriginal = 1;
-
-    // 將私人欄位顯示在屬性面板上
-    [SerializeField]
-    protected StateEnemy state;
+    [Header("掉落道具資料：道具、機率")]
+    public GameObject goProp;
+    [Range(0, 1)]
+    public float propProbability = 0.3f;
     #endregion
 
-    private float timerAttack;
-
     #region 欄位：私人
+    private float timerAttack;
     private Rigidbody2D rig;
     private Animator ani;
     private AudioSource aud;
@@ -76,7 +77,6 @@ public class BaseEnemy : MonoBehaviour
     /// 存放前方是否有不包含地板、跳台的物件
     /// </summary>
     private Collider2D[] hitResult;
-    #endregion
 
     /// <summary>
     /// 玩家類別
@@ -86,11 +86,10 @@ public class BaseEnemy : MonoBehaviour
     /// 攻擊區域的碰撞：保存玩家是否進入以及玩家碰撞資訊
     /// </summary>
     protected Collider2D hit;
-
-    [Header("掉落道具資料：道具、機率")]
-    public GameObject goProp;
-    [Range(0, 1)]
-    public float propProbability = 0.3f;
+    // 將私人欄位顯示在屬性面板上
+    // [SerializeField]
+    protected StateEnemy state;
+    #endregion
 
     #region 事件
     private void Start()
@@ -287,21 +286,6 @@ public class BaseEnemy : MonoBehaviour
         if (random == 0) transform.eulerAngles = Vector2.up * 180;
         else transform.eulerAngles = Vector2.zero;
     }
-    #endregion
-
-    #region 方法：公開
-    /// <summary>
-    /// 受傷
-    /// </summary>
-    /// <param name="damage">接收到的傷害值</param>
-    public void Hurt(float damage)
-    {
-        hp -= damage;
-        ani.SetTrigger("受傷觸發");
-
-        if (hp <= 0) Dead();
-    }
-    #endregion
 
     /// <summary>
     /// 死亡：死亡動畫、狀態、關閉腳本、碰撞器、加速度以及剛體凍結
@@ -315,6 +299,10 @@ public class BaseEnemy : MonoBehaviour
         rig.velocity = Vector3.zero;                            // 加速度歸零
         rig.constraints = RigidbodyConstraints2D.FreezeAll;     // 剛體凍結全部
         DropProp();
+
+        // 通知傳送管理將數量 - 1
+        TeleportManager.countAllEnemy--;
+
         enabled = false;
     }
 
@@ -330,6 +318,21 @@ public class BaseEnemy : MonoBehaviour
             Instantiate(goProp, transform.position + Vector3.up * 1.5f, Quaternion.identity);
         }
     }
+    #endregion
+
+    #region 方法：公開
+    /// <summary>
+    /// 受傷
+    /// </summary>
+    /// <param name="damage">接收到的傷害值</param>
+    public void Hurt(float damage)
+    {
+        hp -= damage;
+        ani.SetTrigger("受傷觸發");
+
+        if (hp <= 0) Dead();
+    }
+    #endregion
 }
 
 // 定義列舉

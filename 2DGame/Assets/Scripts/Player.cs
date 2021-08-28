@@ -279,7 +279,7 @@ public class Player : MonoBehaviour
     /// </summary>
     private GameObject goPropHit;
 
-    // 碰撞事件：
+    // 碰撞事件：Collision
     // 1. 兩個碰撞物件都要有 Collider 
     // 2. 並且其中一個要有 Rigidbody
     // 3. 兩個都沒有勾選 Is Trigger
