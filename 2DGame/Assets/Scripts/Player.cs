@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;                   // 引用 介面 API
+using UnityEngine.Events;
 
 public class Player : MonoBehaviour
 {
@@ -20,6 +21,16 @@ public class Player : MonoBehaviour
     public float groundRadius = 0.5f;
     [Header("攻擊冷卻"), Range(0, 5)]
     public float cd = 2;
+    [Header("攻擊力"), Range(0, 1000)]
+    public float attack = 20;
+    [Header("攻擊區域的位移與大小")]
+    public Vector2 checkAttackOffset;
+    public Vector3 checkAttackSize;
+    [Header("死亡事件")]
+    public UnityEvent onDead;
+    [Header("音效區域")]
+    public AudioClip soundJump;
+    public AudioClip soundAttack;
 
     // 私人欄位不顯示
     // 開啟屬性面板除錯模式 Debug 可以看到私人欄位
@@ -38,9 +49,6 @@ public class Player : MonoBehaviour
     /// 是否攻擊
     /// </summary>
     private bool isAttack;
-    #endregion
-
-    #region 事件
     /// <summary>
     /// 文字血量
     /// </summary>
@@ -53,22 +61,24 @@ public class Player : MonoBehaviour
     /// 血量最大值：保存血量最大數值
     /// </summary>
     private float hpMax;
-
-    [Header("攻擊區域的位移與大小")]
-    public Vector2 checkAttackOffset;
-    public Vector3 checkAttackSize;
-
     /// <summary>
     /// 攝影機控制類別
     /// </summary>
     private CameraControl cameraControl;
+    /// <summary>
+    /// 儲存碰撞物件資訊
+    /// </summary>
+    private GameObject goPropHit;
+    #endregion
 
+    #region 事件
     private void Start()
     {
         // GetComponent<類型>() 泛型方法，可以指定任何類型
         // 作用：取得此物件的 2D 剛體元件
         rig = GetComponent<Rigidbody2D>();
         ani = GetComponent<Animator>();
+        aud = GetComponent<AudioSource>();
 
         hpMax = hp;
 
@@ -108,6 +118,17 @@ public class Player : MonoBehaviour
             transform.right * checkAttackOffset.x +
             transform.up * checkAttackOffset.y,
             checkAttackSize);
+    }
+
+    // 碰撞事件：Collision
+    // 1. 兩個碰撞物件都要有 Collider 
+    // 2. 並且其中一個要有 Rigidbody
+    // 3. 兩個都沒有勾選 Is Trigger
+    // Enter 事件：碰撞開始時執行一次
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        goPropHit = collision.gameObject;
+        EatProp(collision.gameObject.tag);
     }
     #endregion
 
@@ -183,11 +204,9 @@ public class Player : MonoBehaviour
         if (isGround && Input.GetKeyDown(KeyCode.Space))
         {
             rig.AddForce(new Vector2(0, jump));
+            aud.PlayOneShot(soundJump, Random.Range(0.7f, 1.1f));
         }
     }
-
-    [Header("攻擊力"), Range(0, 1000)]
-    public float attack = 20;
 
     /// <summary>
     /// 攻擊
@@ -199,6 +218,7 @@ public class Player : MonoBehaviour
         {
             isAttack = true;
             ani.SetTrigger("攻擊觸發");
+            aud.PlayOneShot(soundAttack, Random.Range(0.7f, 1.1f));
 
             // 判定攻擊區域是否有打到 8 號敵人圖層物件
             Collider2D hit = Physics2D.OverlapBox(transform.position +
@@ -250,6 +270,7 @@ public class Player : MonoBehaviour
     {
         hp = 0;                             // 血量歸零
         ani.SetBool("死亡開關", true);       // 死亡動畫
+        onDead.Invoke();                    // 呼叫死亡事件
         enabled = false;                    // 關閉此腳本
     }
 
@@ -273,20 +294,4 @@ public class Player : MonoBehaviour
         }
     }
     #endregion
-
-    /// <summary>
-    /// 儲存碰撞物件資訊
-    /// </summary>
-    private GameObject goPropHit;
-
-    // 碰撞事件：Collision
-    // 1. 兩個碰撞物件都要有 Collider 
-    // 2. 並且其中一個要有 Rigidbody
-    // 3. 兩個都沒有勾選 Is Trigger
-    // Enter 事件：碰撞開始時執行一次
-    private void OnCollisionEnter2D(Collision2D collision)
-    {
-        goPropHit = collision.gameObject;
-        EatProp(collision.gameObject.tag);
-    }
 }
